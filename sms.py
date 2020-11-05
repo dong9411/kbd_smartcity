@@ -56,9 +56,9 @@ client = boto3.client(
     aws_secret_access_key='y5yczIDQEDXWOA1f/gBTjPF3sAaVW1EAa49UHqFp')
 
 response = client.publish(
-    TopicArn='arn:aws:sns:ap-southeast-1:248837585826:DH_phone',
+    #TopicArn='arn:aws:sns:ap-southeast-1:248837585826:DH_phone',
     #TargetArn='string',
-    #PhoneNumber='string',
+    PhoneNumber='+8201035693132',
     Message="{0} [lat:{1}, lng:{2}] fire detected".format(
         geo_address, location['location']['lat'], location['location']['lng']),
     Subject='string',
