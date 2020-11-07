@@ -53,7 +53,8 @@ client = boto3.client(
     'sns',
     region_name='ap-southeast-1',
     aws_access_key_id='AKIATT37AHORBIXBA66H',
-    aws_secret_access_key='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')
+    #aws_secret_access_key=''
+    )
 
 response = client.publish(
     #TopicArn='arn:aws:sns:ap-southeast-1:248837585826:DH_phone',
