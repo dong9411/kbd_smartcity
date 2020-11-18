@@ -1,8 +1,9 @@
 from imageai.Detection.Custom import CustomObjectDetection, CustomVideoObjectDetection
 import os
+import datetime
 
 execution_path = os.getcwd()
-
+Time = lambda: datetime.datetime.now().time()
 
 def train_detection_model():
     from imageai.Detection.Custom import DetectionModelTrainer
@@ -40,6 +41,7 @@ def detect_from_video():
 
     detected_video_path = detector.detectObjectsFromVideo(input_file_path=os.path.join(execution_path, "video1.mp4"), frames_per_second=30, output_file_path=os.path.join(execution_path, "video1-detected"), minimum_percentage_probability=40, log_progress=True )
 
-
 if __name__ == '__main__':
-    detect_from_image()
+    while True:
+        detect_from_image()
+        print(Time(), 'Detected')
