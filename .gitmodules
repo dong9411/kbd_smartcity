@@ -1,0 +1,3 @@
+[submodule "gsoap-onvif"]
+	path = gsoap-onvif
+	url = https://github.com/paullouisageneau/gsoap-onvif
