@@ -1,3 +1,6 @@
 [submodule "gsoap-onvif"]
 	path = gsoap-onvif
 	url = https://github.com/paullouisageneau/gsoap-onvif
+[submodule "Yet-Another-EfficientDet-Pytorch"]
+	path = Yet-Another-EfficientDet-Pytorch
+	url = https://github.com/zylo117/Yet-Another-EfficientDet-Pytorch
