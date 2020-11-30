@@ -1,6 +1,7 @@
 import cv2
 import requests, json
 import tempfile
+import boto3
 
 import numpy as np
 from PIL import Image
@@ -35,7 +36,7 @@ def imread(img):
         return cv2.imread(img, cv2.IMREAD_GRAYSCALE)
     
     def JPG_PNG(img):
-        return cv2.imdecode(np.asarray(bytearray(img), dtype="uint8"), cv2.IMREAD_COLOR)
+        return cv2.imdecode(np.asarray(bytearray(img), dtype="uint8"), cv2.IMREAD_ANYCOLOR)
     
     return {
       ".gif": (lambda img:
@@ -48,13 +49,26 @@ def imread(img):
     }[Path(img).suffix](urlopen(img).read())
 
 output = tempfile.NamedTemporaryFile(suffix='.jpg').name
+def url_to_image(url):
+	# download the image, convert it to a NumPy array, and then read
+	# it into OpenCV format
+	resp = urlopen(url)
+	image = np.asarray(bytearray(resp.read()), dtype="uint8")
+	image = cv2.imdecode(image, cv2.IMREAD_ANYCOLOR)
+	# return the image
+	return image
+
 
 def detect_from_image(url):
-    img = imread(url)
+    img = url_to_image(url)
+    cv2.imshow('qq',img)
+    cv2.waitKey(0)
+    cv2.destroyWindows()
+    print(img, img.shape)
     detections = detector.detectObjectsFromImage(input_image = img,
                                                 input_type='array',
                                                 output_image_path = output,
-                                                minimum_percentage_probability=40)
+                                                minimum_percentage_probability=600)
     """
     'detectObjectsFromImage()' function is used to detect objects observable in the given image:
                     * input_image , which can be a filepath or image numpy array in BGR
@@ -68,9 +82,9 @@ def detect_from_image(url):
                     * display_display_object_name (optional, True by default), option to show or hide the name of each object in the saved/returned detected image
                     * thread_safe (optional, False by default), enforce the loaded detection model works across all threads if set to true, made possible by forcing all Keras inference to run on the default graph
     """
-    height, width = img.shape
+    height, width, channel = img.shape
     data = {
-            "image": url,
+            "image": url[:8],
             "labels": {
                 "fire": []
             }
@@ -93,7 +107,38 @@ def detect_from_image(url):
             "right": r_ratio
         })
 
-    print(data)
-    res = requests.post('https://proxy.hwangsehyun.com/SmartCity/1234', json=data)
 
-detect_from_image('https://raw.githubusercontent.com/OlafenwaMoses/FireNET/master/images/2-detected.jpg')
+    print(data)
+    res = requests.post('https://apigateway.hwangsehyun.com/smartcity/sns', json=data)
+
+
+
+
+
+s3 = boto3.client('s3')
+
+
+sqs = boto3.resource('sqs')
+
+queue = sqs.get_queue_by_name(QueueName='SmartCity-CCTV')
+
+while 1:
+
+    for url in queue.receive_messages():
+        queue.purge()
+        body = json.loads(url.body)
+
+        print(body)
+        
+        url = s3.generate_presigned_url(
+            ClientMethod='get_object', 
+            Params={
+                'Bucket': 'kbdlab-smartcity',
+                'Key': '{}'.format(body['Records'][0]['s3']['object']['key'])
+            },
+            ExpiresIn=300
+        )
+
+        print(url)
+        
+        detect_from_image(url)
