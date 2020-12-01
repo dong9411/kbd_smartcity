@@ -20,8 +20,12 @@ def loop():
 		try:
 			print(message.body)
 			key = json.loads(message.body)['Records'][0]['s3']['object']['key']
+			if '.tmp.' in key:
+				continue
+
 			object = s3.Object(BUCKET, key)
 			img = object.get()['Body'].read()
+
 			url = s3_client.generate_presigned_url(
 				ClientMethod='get_object', 
 				Params={
@@ -41,9 +45,13 @@ def loop():
 			raise error
 			data = ''.join(traceback.format_exception(*sys.exc_info()))
 
-		requests.post('https://proxy.hwangsehyun.com/smartcity/123', json=data)
-
-	loop()
+		message.delete()
+		try:
+			requests.post('https://proxy.hwangsehyun.com/smartcity/123', json=data)
+		except Exception as error:
+			print(error)
 
 if __name__ == '__main__':
-	loop()
+	s3_client.upload_file('1.jpg', BUCKET, '1.jpg')
+	while 1:
+		loop()

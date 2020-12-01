@@ -42,10 +42,12 @@ def detect_from_image(bts, imshow=False):
         cv2.waitKey(0)
         cv2.destroyWindows()
 
-    detections = detector.detectObjectsFromImage(input_image = img,
+
+
+    detections = detector.detectObjectsFromImage(input_image=img,
                                                 input_type='array',
-                                                output_image_path = output,
-                                                minimum_percentage_probability=600)
+                                                output_image_path=output,
+                                                minimum_percentage_probability=20)
     print(detections)
     """
     'detectObjectsFromImage()' function is used to detect objects observable in the given image:
